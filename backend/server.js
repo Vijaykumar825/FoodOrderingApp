@@ -5,17 +5,7 @@ require("dotenv").config();
 
 const app = express();
 
-/* ✅ FIXED CORS */
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5173",
-      "https://food-ordering-app-ten-xi.vercel.app"
-    ],
-    credentials: true
-  })
-);
-
+app.use(cors());
 app.use(express.json());
 
 // Health check
@@ -23,7 +13,7 @@ app.get("/", (req, res) => {
   res.json({ message: "Backend is running 🚀" });
 });
 
-// Routes
+// ✅ EXACT MATCHING FILE NAMES
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/restaurants", require("./routes/restaurantRoutes"));
 app.use("/api/foods", require("./routes/foodRoutes"));
