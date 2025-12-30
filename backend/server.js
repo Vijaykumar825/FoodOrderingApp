@@ -10,7 +10,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://food-ordering-app-rose-chi.vercel.app"
+      "https://food-ordering-app-ten-xi.vercel.app"
     ],
     credentials: true
   })
