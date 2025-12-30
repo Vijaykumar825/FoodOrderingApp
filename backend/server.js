@@ -5,7 +5,17 @@ require("dotenv").config();
 
 const app = express();
 
-app.use(cors());
+/* ✅ FIXED CORS */
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://food-ordering-app-rose-chi.vercel.app"
+    ],
+    credentials: true
+  })
+);
+
 app.use(express.json());
 
 // Health check
@@ -13,7 +23,7 @@ app.get("/", (req, res) => {
   res.json({ message: "Backend is running 🚀" });
 });
 
-// ✅ EXACT MATCHING FILE NAMES
+// Routes
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/restaurants", require("./routes/restaurantRoutes"));
 app.use("/api/foods", require("./routes/foodRoutes"));
