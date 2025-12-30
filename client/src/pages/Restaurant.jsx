@@ -28,21 +28,29 @@ export default function Restaurant() {
           </button>
         </div>
 
-        {foods.length === 0 && (
-          <p className="text-gray-500">No food items available.</p>
-        )}
-
         <div className="grid grid-cols-3 gap-6">
           {foods.map((food) => (
-            <div key={food._id} className="border rounded-lg p-5">
-              <h2 className="font-semibold">{food.name}</h2>
-              <p className="text-gray-700">₹{food.price}</p>
-              <button
-                className="mt-3 bg-black text-white px-3 py-1 rounded"
-                onClick={() => addToCart(food)}
-              >
-                Add to Cart
-              </button>
+            <div
+              key={food._id}
+              className="border rounded-lg overflow-hidden hover:shadow transition"
+            >
+              <img
+                src={food.image}
+                alt={food.name}
+                className="w-full h-40 object-cover"
+              />
+
+              <div className="p-4">
+                <h2 className="font-semibold text-lg">{food.name}</h2>
+                <p className="text-gray-700">₹{food.price}</p>
+
+                <button
+                  onClick={() => addToCart(food)}
+                  className="mt-3 bg-black text-white px-3 py-1 rounded"
+                >
+                  Add to Cart
+                </button>
+              </div>
             </div>
           ))}
         </div>

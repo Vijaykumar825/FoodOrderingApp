@@ -36,14 +36,21 @@ export default function Cart() {
         {cart.map((item) => (
           <div
             key={item._id}
-            className="border rounded-lg p-4 mb-3 flex justify-between"
+            className="border rounded-lg p-4 mb-3 flex gap-4 items-center"
           >
-            <div>
+            <img
+              src={item.image}
+              alt={item.name}
+              className="w-20 h-20 object-cover rounded"
+            />
+
+            <div className="flex-1">
               <h2 className="font-semibold">{item.name}</h2>
               <p className="text-gray-600">
                 ₹{item.price} × {item.quantity}
               </p>
             </div>
+
             <button
               className="text-red-600"
               onClick={() => removeFromCart(item._id)}
