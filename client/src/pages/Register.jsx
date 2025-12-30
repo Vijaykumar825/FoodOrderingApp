@@ -2,6 +2,7 @@ import { useState } from "react";
 import api from "../services/api";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import toast from "react-hot-toast";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -14,83 +15,139 @@ export default function Register() {
   });
 
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+
+  // Button is only enabled when all fields have values
+  const isFormValid = 
+    form.name.trim() !== "" && 
+    form.email.trim() !== "" && 
+    form.password.trim() !== "";
 
   const submit = async (e) => {
     e.preventDefault();
+    if (!isFormValid) return;
+
     try {
       setLoading(true);
 
       // 1️⃣ Register user
       await api.post("/auth/register", form);
 
-      // 2️⃣ Show success message
-      setSuccess(true);
+      // 2️⃣ Show success toast
+      toast.success("Registration successful! Logging you in...");
 
-      // 3️⃣ Short delay for UX
+      // 3️⃣ Auto-login after a short delay
       setTimeout(async () => {
-        // 4️⃣ Auto-login
-        await login(form.email, form.password);
-
-        // 5️⃣ Redirect to home
-        navigate("/", { replace: true });
-      }, 1200);
+        try {
+          await login(form.email, form.password);
+          navigate("/", { replace: true });
+        } catch (err) {
+          toast.error("Auto-login failed. Please login manually.");
+          navigate("/login");
+        }
+      }, 1000);
     } catch (err) {
-      alert(err.response?.data?.msg || "Registration failed");
+      const message = err.response?.data?.message || err.response?.data?.msg || "Registration failed";
+      toast.error(message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form onSubmit={submit} className="p-10 max-w-md mx-auto">
-      <h1 className="text-2xl mb-4 font-semibold">Register</h1>
-
-      {success && (
-        <div className="mb-4 p-3 bg-green-100 text-green-700 rounded">
-          Registration successful! Redirecting to home…
+    <div className="min-h-screen bg-gradient-warm flex items-center justify-center p-4">
+      <div className="w-full max-w-md animate-fadeInUp">
+        {/* Logo/Brand */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
+            Foodify 🍔
+          </h1>
+          <p className="text-gray-600 mt-2">Create your account and start ordering</p>
         </div>
-      )}
 
-      <input
-        className="border p-2 w-full mb-2"
-        placeholder="Name"
-        required
-        disabled={loading || success}
-        onChange={(e) => setForm({ ...form, name: e.target.value })}
-      />
+        {/* Register Card */}
+        <div className="card-glass">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6">Create Account</h2>
 
-      <input
-        className="border p-2 w-full mb-2"
-        placeholder="Email"
-        type="email"
-        required
-        disabled={loading || success}
-        onChange={(e) => setForm({ ...form, email: e.target.value })}
-      />
+          <form onSubmit={submit} className="space-y-5">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Full Name
+              </label>
+              <input
+                type="text"
+                className="input-modern"
+                placeholder="John Doe"
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                disabled={loading}
+              />
+            </div>
 
-      <input
-        className="border p-2 w-full mb-4"
-        placeholder="Password"
-        type="password"
-        required
-        disabled={loading || success}
-        onChange={(e) => setForm({ ...form, password: e.target.value })}
-      />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email Address
+              </label>
+              <input
+                type="email"
+                className="input-modern"
+                placeholder="you@example.com"
+                value={form.email}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                disabled={loading}
+              />
+            </div>
 
-      <button
-        disabled={loading || success}
-        className="bg-black text-white p-2 w-full mb-3 disabled:opacity-50"
-      >
-        {loading ? "Registering..." : "Register"}
-      </button>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Password
+              </label>
+              <input
+                type="password"
+                className="input-modern"
+                placeholder="••••••••"
+                value={form.password}
+                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                disabled={loading}
+              />
+            </div>
 
-      <p className="text-sm text-center">
-        Already have an account?{" "}
-        <Link to="/login" className="text-blue-600 underline">
-          Login here
-        </Link>
-      </p>
-    </form>
+            <button
+              type="submit"
+              disabled={!isFormValid || loading}
+              className="btn-primary w-full flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                  Creating account...
+                </>
+              ) : (
+                "Create Account"
+              )}
+            </button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-gray-600">
+              Already have an account?{" "}
+              <Link 
+                to="/login" 
+                className="text-orange-500 font-semibold hover:text-orange-600 transition-colors"
+              >
+                Sign in
+              </Link>
+            </p>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <p className="text-center text-gray-500 text-sm mt-6">
+          Join thousands of food lovers today 🍕
+        </p>
+      </div>
+    </div>
   );
 }
